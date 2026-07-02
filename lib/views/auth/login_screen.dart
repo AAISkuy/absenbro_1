@@ -59,15 +59,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    
     return Scaffold(
       body: Container(
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF0F0C20), Color(0xFF15102A), Color(0xFF050211)],
+            colors: [Color(0xFFF2F1F7), Color(0xFFE8E7F0), Color(0xFFF6F5FA)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -104,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Color(0xFF201A38),
                       letterSpacing: 1.2,
                     ),
                   ),
@@ -114,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.white.withOpacity(0.6),
+                      color: Colors.black.withOpacity(0.6),
                     ),
                   ),
                   const SizedBox(height: 48),
@@ -147,16 +145,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.black87),
                     decoration: InputDecoration(
                       hintText: "Email Anda",
-                      hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
-                      prefixIcon: Icon(Icons.email_outlined, color: Colors.white.withOpacity(0.6)),
+                      hintStyle: TextStyle(color: Colors.black.withOpacity(0.4)),
+                      prefixIcon: Icon(Icons.email_outlined, color: Colors.black.withOpacity(0.5)),
                       filled: true,
-                      fillColor: const Color(0xFF201A38),
+                      fillColor: Colors.white,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
+                        borderSide: BorderSide(color: Colors.black.withOpacity(0.06)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: Colors.black.withOpacity(0.06)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -179,15 +181,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.black87),
                     decoration: InputDecoration(
                       hintText: "Password",
-                      hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
-                      prefixIcon: Icon(Icons.lock_outlined, color: Colors.white.withOpacity(0.6)),
+                      hintStyle: TextStyle(color: Colors.black.withOpacity(0.4)),
+                      prefixIcon: Icon(Icons.lock_outlined, color: Colors.black.withOpacity(0.5)),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                          color: Colors.white.withOpacity(0.6),
+                          color: Colors.black.withOpacity(0.5),
                         ),
                         onPressed: () {
                           setState(() {
@@ -196,10 +198,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
                       filled: true,
-                      fillColor: const Color(0xFF201A38),
+                      fillColor: Colors.white,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
+                        borderSide: BorderSide(color: Colors.black.withOpacity(0.06)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: Colors.black.withOpacity(0.06)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -249,7 +255,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       elevation: 4,
-                      shadowColor: const Color(0xFF6C63FF).withOpacity(0.4),
+                      shadowColor: const Color(0xFF6C63FF).withOpacity(0.2),
                     ),
                     child: _isLoading
                         ? const SizedBox(
@@ -276,7 +282,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       Text(
                         "Belum punya akun? ",
-                        style: TextStyle(color: Colors.white.withOpacity(0.6)),
+                        style: TextStyle(color: Colors.black.withOpacity(0.6)),
                       ),
                       GestureDetector(
                         onTap: () {
