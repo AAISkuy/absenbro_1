@@ -138,6 +138,28 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _handleCheckIn() async {
+    final now = DateTime.now();
+    if (now.hour < 7) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: const Color(0xFF201A38),
+          title: const Text("Belum Waktunya", style: TextStyle(color: Colors.white)),
+          content: const Text(
+            "Absen masuk baru dibuka mulai pukul 07:00 pagi.",
+            style: TextStyle(color: Colors.white70),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text("OK", style: TextStyle(color: Color(0xFF8B7EFE))),
+            )
+          ],
+        ),
+      );
+      return;
+    }
+
     if (_currentPosition == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Menunggu koordinat GPS stabil...")),
@@ -240,6 +262,28 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _handleCheckOut() async {
+    final now = DateTime.now();
+    if (now.hour < 16) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: const Color(0xFF201A38),
+          title: const Text("Belum Waktunya", style: TextStyle(color: Colors.white)),
+          content: const Text(
+            "Absen pulang baru dibuka mulai pukul 16:00 sore.",
+            style: TextStyle(color: Colors.white70),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text("OK", style: TextStyle(color: Color(0xFF8B7EFE))),
+            )
+          ],
+        ),
+      );
+      return;
+    }
+
     if (_currentPosition == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Menunggu koordinat GPS stabil...")),
@@ -393,31 +437,59 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 32),
 
-                  // Actions Check In & Out
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildActionButton(
-                          title: "CHECK IN",
-                          subtitle: "Jam Masuk",
-                          icon: Icons.login_outlined,
-                          color: const Color(0xFF6C63FF),
-                          isActive: _todayAttendance?['check_in_time'] == null && !_isCheckingStatus && !_isSubmitting,
-                          onTap: _handleCheckIn,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildActionButton(
-                          title: "CHECK OUT",
-                          subtitle: "Jam Pulang",
-                          icon: Icons.logout_outlined,
-                          color: const Color(0xFF00C9A7),
-                          isActive: _todayAttendance?['check_in_time'] != null && _todayAttendance?['check_out_time'] == null && !_isCheckingStatus && !_isSubmitting,
-                          onTap: _handleCheckOut,
-                        ),
-                      ),
-                    ],
+                  // Action Button (Combined Check In / Check Out)
+                  Builder(
+                    builder: (context) {
+                      final hasCheckedIn = _todayAttendance?['check_in_time'] != null;
+                      final hasCheckedOut = _todayAttendance?['check_out_time'] != null;
+                      final isIzin = _todayAttendance?['status'] == 'izin';
+
+                      String title;
+                      String subtitle;
+                      IconData icon;
+                      Color color;
+                      bool isActive;
+                      VoidCallback onTap;
+
+                      if (isIzin) {
+                        title = "IZIN HARI INI";
+                        subtitle = "Pengajuan izin hari ini telah disetujui";
+                        icon = Icons.assignment_turned_in_outlined;
+                        color = Colors.orange;
+                        isActive = false;
+                        onTap = () {};
+                      } else if (!hasCheckedIn) {
+                        title = "CHECK IN";
+                        subtitle = "Tekan untuk Absen Masuk";
+                        icon = Icons.login_outlined;
+                        color = const Color(0xFF6C63FF);
+                        isActive = !_isCheckingStatus && !_isSubmitting;
+                        onTap = _handleCheckIn;
+                      } else if (!hasCheckedOut) {
+                        title = "CHECK OUT";
+                        subtitle = "Tekan untuk Absen Pulang";
+                        icon = Icons.logout_outlined;
+                        color = const Color(0xFF00C9A7);
+                        isActive = !_isCheckingStatus && !_isSubmitting;
+                        onTap = _handleCheckOut;
+                      } else {
+                        title = "ABSEN SELESAI";
+                        subtitle = "Kehadiran hari ini sudah tercatat";
+                        icon = Icons.check_circle_outline;
+                        color = Colors.grey;
+                        isActive = false;
+                        onTap = () {};
+                      }
+
+                      return _buildActionButton(
+                        title: title,
+                        subtitle: subtitle,
+                        icon: icon,
+                        color: color,
+                        isActive: isActive,
+                        onTap: onTap,
+                      );
+                    },
                   ),
                   const SizedBox(height: 40),
                 ],
@@ -434,6 +506,18 @@ class _HomeScreenState extends State<HomeScreen> {
     final checkOut = _todayAttendance?['check_out_time'] ?? "--:--";
     final status = _todayAttendance?['status'] ?? "belum absen";
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    bool isLate = false;
+    if (checkIn != "--:--" && (status == 'masuk' || status.contains('masuk'))) {
+      try {
+        final parts = checkIn.split(':');
+        final hour = int.parse(parts[0]);
+        final minute = int.parse(parts[1]);
+        if (hour > 7 || (hour == 7 && minute > 0)) {
+          isLate = true;
+        }
+      } catch (_) {}
+    }
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -466,13 +550,21 @@ class _HomeScreenState extends State<HomeScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: status == 'masuk' ? Colors.green.withOpacity(0.2) : (status == 'izin' ? Colors.orange.withOpacity(0.2) : Colors.redAccent.withOpacity(0.2)),
+                  color: isLate 
+                      ? Colors.redAccent.withOpacity(0.2) 
+                      : (status == 'masuk' || status.contains('masuk')
+                          ? Colors.green.withOpacity(0.2) 
+                          : (status == 'izin' ? Colors.orange.withOpacity(0.2) : Colors.redAccent.withOpacity(0.2))),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  status.toUpperCase(),
+                  isLate ? "TERLAMBAT" : status.toUpperCase(),
                   style: TextStyle(
-                    color: status == 'masuk' ? Colors.green : (status == 'izin' ? Colors.orange : Colors.redAccent),
+                    color: isLate 
+                        ? Colors.redAccent 
+                        : (status == 'masuk' || status.contains('masuk')
+                            ? Colors.green 
+                            : (status == 'izin' ? Colors.orange : Colors.redAccent)),
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                   ),

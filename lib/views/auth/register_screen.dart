@@ -334,6 +334,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         DropdownButtonFormField<int>(
                           isExpanded: true,
                           value: _selectedTrainingId,
+                          hint: const Text(
+                            "Program Pelatihan",
+                            style: TextStyle(color: Colors.black38, fontSize: 13),
+                          ),
                           style: const TextStyle(color: Colors.black87),
                           dropdownColor: Colors.white,
                           decoration: _buildInputDecoration("Program Pelatihan", Icons.school_outlined),
@@ -360,6 +364,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         DropdownButtonFormField<int>(
                           isExpanded: true,
                           value: _selectedBatchId,
+                          hint: const Text(
+                            "Batch / Angkatan",
+                            style: TextStyle(color: Colors.black38, fontSize: 13),
+                          ),
                           style: const TextStyle(color: Colors.black87),
                           dropdownColor: Colors.white,
                           decoration: _buildInputDecoration("Batch / Angkatan", Icons.group_outlined),

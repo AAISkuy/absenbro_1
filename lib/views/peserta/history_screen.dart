@@ -22,6 +22,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   int _totalMasuk = 0;
   int _totalIzin = 0;
   int _totalAlpha = 0;
+  int _totalTerlambat = 0;
 
   List<Map<String, dynamic>> _historyLogs = [];
 
@@ -103,6 +104,24 @@ class _HistoryScreenState extends State<HistoryScreen> {
               };
             });
           }
+
+          // Compute _totalTerlambat from the history logs
+          int lateCount = 0;
+          for (final log in _historyLogs) {
+            final status = log['status'] as String?;
+            final checkIn = log['check_in_time'] as String?;
+            if ((status == 'masuk' || (status != null && status.contains('masuk'))) && checkIn != null && checkIn != '--:--') {
+              try {
+                final parts = checkIn.split(':');
+                final hour = int.parse(parts[0]);
+                final minute = int.parse(parts[1]);
+                if (hour > 7 || (hour == 7 && minute > 0)) {
+                  lateCount++;
+                }
+              } catch (_) {}
+            }
+          }
+          _totalTerlambat = lateCount;
 
           _isLoading = false;
         });
@@ -206,6 +225,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Widget _buildChartCard() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    final onTimeCount = (_totalMasuk > _totalTerlambat) ? (_totalMasuk - _totalTerlambat) : 0;
+    final totalStatsCount = onTimeCount + _totalTerlambat + _totalIzin + _totalAlpha;
+    
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -239,28 +262,45 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     PieChartData(
                       sectionsSpace: 4,
                       centerSpaceRadius: 40,
-                      sections: [
-                        PieChartSectionData(
-                          value: _totalMasuk.toDouble() == 0 && _totalIzin.toDouble() == 0
-                              ? 1
-                              : _totalMasuk.toDouble(),
-                          color: const Color(0xFF6C63FF),
-                          radius: 18,
-                          showTitle: false,
-                        ),
-                        PieChartSectionData(
-                          value: _totalIzin.toDouble(),
-                          color: const Color(0xFFFFB347),
-                          radius: 18,
-                          showTitle: false,
-                        ),
-                        PieChartSectionData(
-                          value: _totalAlpha.toDouble(),
-                          color: const Color(0xFFFF6B6B),
-                          radius: 18,
-                          showTitle: false,
-                        ),
-                      ],
+                      sections: totalStatsCount == 0
+                          ? [
+                              PieChartSectionData(
+                                value: 1,
+                                color: isDark ? Colors.white12 : Colors.black12,
+                                radius: 18,
+                                showTitle: false,
+                              ),
+                            ]
+                          : [
+                              if (onTimeCount > 0)
+                                PieChartSectionData(
+                                  value: onTimeCount.toDouble(),
+                                  color: const Color(0xFF6C63FF),
+                                  radius: 18,
+                                  showTitle: false,
+                                ),
+                              if (_totalTerlambat > 0)
+                                PieChartSectionData(
+                                  value: _totalTerlambat.toDouble(),
+                                  color: const Color(0xFFFF6B6B),
+                                  radius: 18,
+                                  showTitle: false,
+                                ),
+                              if (_totalIzin > 0)
+                                PieChartSectionData(
+                                  value: _totalIzin.toDouble(),
+                                  color: const Color(0xFFFFB347),
+                                  radius: 18,
+                                  showTitle: false,
+                                ),
+                              if (_totalAlpha > 0)
+                                PieChartSectionData(
+                                  value: _totalAlpha.toDouble(),
+                                  color: const Color(0xFF8E8E93),
+                                  radius: 18,
+                                  showTitle: false,
+                                ),
+                            ],
                     ),
                   ),
                 ),
@@ -270,11 +310,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildChartLegend(const Color(0xFF6C63FF), "Masuk", _totalMasuk),
+                      _buildChartLegend(const Color(0xFF6C63FF), "Tepat Waktu", onTimeCount),
+                      const SizedBox(height: 12),
+                      _buildChartLegend(const Color(0xFFFF6B6B), "Terlambat", _totalTerlambat),
                       const SizedBox(height: 12),
                       _buildChartLegend(const Color(0xFFFFB347), "Izin", _totalIzin),
                       const SizedBox(height: 12),
-                      _buildChartLegend(const Color(0xFFFF6B6B), "Alpha", _totalAlpha),
+                      _buildChartLegend(const Color(0xFF8E8E93), "Alpha", _totalAlpha),
                     ],
                   ),
                 ),
@@ -401,6 +443,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
         final status = log['status'] as String;
         final checkIn = log['check_in_time'] as String?;
         final checkOut = log['check_out_time'] as String?;
+        
+        bool isLate = false;
+        if ((status == 'masuk' || status.contains('masuk')) && checkIn != null && checkIn != '--:--') {
+          try {
+            final parts = checkIn.split(':');
+            final hour = int.parse(parts[0]);
+            final minute = int.parse(parts[1]);
+            if (hour > 7 || (hour == 7 && minute > 0)) {
+              isLate = true;
+            }
+          } catch (_) {}
+        }
         final isPermission = status == 'izin';
 
         return Container(
@@ -457,13 +511,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: isPermission ? Colors.orange.withOpacity(0.2) : Colors.green.withOpacity(0.2),
+                      color: isPermission 
+                          ? Colors.orange.withOpacity(0.2) 
+                          : (isLate ? Colors.redAccent.withOpacity(0.2) : Colors.green.withOpacity(0.2)),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      status.toUpperCase(),
+                      isLate ? "TERLAMBAT" : status.toUpperCase(),
                       style: TextStyle(
-                        color: isPermission ? Colors.orange : Colors.green,
+                        color: isPermission 
+                            ? Colors.orange 
+                            : (isLate ? Colors.redAccent : Colors.green),
                         fontSize: 9,
                         fontWeight: FontWeight.bold,
                       ),
