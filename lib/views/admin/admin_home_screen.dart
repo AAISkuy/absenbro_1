@@ -1,7 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+
 import '../../services/api_service.dart';
 import '../../services/dio_client.dart';
-import 'package:dio/dio.dart';
 
 class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
@@ -131,7 +132,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                             Expanded(
                               child: _buildMetricCard(
                                 "Total Peserta",
-                                _totalUsers.toString(),
+                                _totalUsers
+                                    .toString(), //added this line to display total users
                                 Icons.people,
                                 const Color(0xFF6C63FF),
                               ),
