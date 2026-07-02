@@ -7,7 +7,7 @@ class LocationService {
   LocationService._internal();
 
   // Flag to simulate user location at PPKD Jakarta Pusat for testing/debugging
-  static const bool useMockLocation = false;
+  static const bool useMockLocation = true;
 
   // Default PPKD office location coordinates (PPKD Jakarta Pusat - Karet Tengsin, Tanah Abang)
   static const double targetLatitude = -6.2163;
