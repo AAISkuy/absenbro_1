@@ -23,10 +23,6 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
-              <!-- Displays an Android View that continues showing the launch screen Drawable until
-                   Flutter paints its first frame, then this splash screen fades out. A splash screen
-                   is useful to avoid any visual gap between the end of Android's launch screen and
-                   the painting of Flutter's first frame. -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -39,7 +35,7 @@
             android:value="2" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="${GOOGLE_MAPS_API_KEY}"/> <!-- Add this meta-data tag to your AndroidManifest.xml file, inside the <application> tag, to specify the API key for Google Maps. -->
+            android:value="${GOOGLE_MAPS_API_KEY}"/>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
