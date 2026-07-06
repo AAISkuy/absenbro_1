@@ -102,19 +102,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  Future<void> _handlePickAndUploadPhoto() async {
+  Future<void> _uploadPhoto(XFile image) async {
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
-      final XFile? image = await _picker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 40, // Slightly compress to reduce payload size
-      );
-
-      if (image == null) return;
-
-      setState(() {
-        _isLoading = true;
-      });
-
       final bytes = await File(image.path).readAsBytes();
       
       // Determine actual mime type from file extension
@@ -143,32 +136,164 @@ class _DashboardScreenState extends State<DashboardScreen> {
             await AuthManager().updateProfilePhotoUrl(photoUrl);
           }
         }
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Foto profil berhasil diperbarui!"), backgroundColor: Colors.green),
-        );
-      }
-    } catch (e) {
-      String errorMessage = "Gagal memperbarui foto profil: $e";
-      if (e is DioException && e.response != null) {
-        final data = e.response!.data;
-        if (data is Map && data.containsKey('message')) {
-          errorMessage = data['message'].toString();
-          if (data.containsKey('errors') && data['errors'] is Map) {
-            final errors = data['errors'] as Map;
-            final errorMsgs = errors.values.expand((v) => v is List ? v : [v]).join(", ");
-            errorMessage = "$errorMessage: $errorMsgs";
-          }
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Foto profil berhasil diperbarui!"), backgroundColor: Colors.green),
+          );
         }
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage), backgroundColor: Colors.redAccent),
-      );
+    } catch (e) {
+      if (mounted) {
+        String errorMessage = "Gagal memperbarui foto profil: $e";
+        if (e is DioException && e.response != null) {
+          final data = e.response!.data;
+          if (data is Map && data.containsKey('message')) {
+            errorMessage = data['message'].toString();
+            if (data.containsKey('errors') && data['errors'] is Map) {
+              final errors = data['errors'] as Map;
+              final errorMsgs = errors.values.expand((v) => v is List ? v : [v]).join(", ");
+              errorMessage = "$errorMessage: $errorMsgs";
+            }
+          }
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage), backgroundColor: Colors.redAccent),
+        );
+      }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
-      _initDashboard();
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        _initDashboard();
+      }
     }
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: source,
+        imageQuality: 40, // Slightly compress to reduce payload size
+      );
+
+      if (image == null) return;
+      await _uploadPhoto(image);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Gagal mengambil gambar: $e"), backgroundColor: Colors.redAccent),
+        );
+      }
+    }
+  }
+
+  Future<void> _handlePickAndUploadPhoto() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF15102A) : Colors.white,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white24 : Colors.black12,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Text(
+                "Ubah Foto Profil",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildSourceButton(
+                    icon: Icons.camera_alt_outlined,
+                    label: "Kamera",
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      _pickImage(ImageSource.camera);
+                    },
+                    isDark: isDark,
+                  ),
+                  _buildSourceButton(
+                    icon: Icons.photo_library_outlined,
+                    label: "Galeri",
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      _pickImage(ImageSource.gallery);
+                    },
+                    isDark: isDark,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSourceButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    required bool isDark,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: const Color(0xFF6C63FF).withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              size: 28,
+              color: const Color(0xFF8B7EFE),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: isDark ? Colors.white70 : Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   String _getFormattedProfilePhotoUrl(String? rawUrl) {

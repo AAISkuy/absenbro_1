@@ -88,10 +88,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         color: const Color(0xFF6C63FF).withOpacity(0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
-                        Icons.fingerprint,
-                        size: 72,
-                        color: Color(0xFF8B7EFE),
+                      child: Image.asset(
+                        'assets/images/CircleIcon.png',
+                        width: 72,
+                        height: 72,
                       ),
                     ),
                   ),

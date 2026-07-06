@@ -110,10 +110,10 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   color: const Color(0xFF6C63FF).withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.fingerprint,
-                  size: 96,
-                  color: Color(0xFF8B7EFE),
+                child: Image.asset(
+                  'assets/images/CircleIcon.png',
+                  width: 96,
+                  height: 96,
                 ),
               ),
               const SizedBox(height: 28),
