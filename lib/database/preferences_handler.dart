@@ -20,7 +20,7 @@ class PreferencesHandler {
     await _prefs.setString(_keyThemeMode, mode);
   }
 
-  static String get themeMode => _prefs.getString(_keyThemeMode) ?? "dark";
+  static String get themeMode => _prefs.getString(_keyThemeMode) ?? "light";
 
   static Future<void> setLogin(bool isLogin) async {
     await _prefs.setBool(_keyIsLogin, isLogin);

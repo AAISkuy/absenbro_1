@@ -4,7 +4,7 @@ import 'database/preferences_handler.dart';
 import 'views/auth/splash_screen.dart';
 
 // Global ValueNotifier to listen for theme changes
-final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.dark);
+final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,7 +12,7 @@ void main() async {
   
   // Load saved theme preference
   final savedTheme = PreferencesHandler.themeMode;
-  themeNotifier.value = savedTheme == "light" ? ThemeMode.light : ThemeMode.dark;
+  themeNotifier.value = savedTheme == "dark" ? ThemeMode.dark : ThemeMode.light;
   
   // Run the app immediately
   runApp(const MyApp());

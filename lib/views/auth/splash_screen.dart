@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../auth/auth_manager.dart';
 import 'login_screen.dart';
 import '../dashboard/dashboard_screen.dart';
@@ -75,76 +76,78 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: isDark
-                ? [const Color(0xFF0F0C20), const Color(0xFF15102A), const Color(0xFF050211)]
-                : [const Color(0xFFF2F1F7), const Color(0xFFE8E7F0), const Color(0xFFF6F5FA)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+      child: Scaffold(
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFFFFFFFF),
+                Color(0xFFECEBFF),
+                Color(0xFFF6F5FA),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
           ),
-        ),
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            return FadeTransition(
-              opacity: _fadeAnimation,
-              child: Transform.scale(
-                scale: _scaleAnimation.value,
-                child: child,
-              ),
-            );
-          },
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF6C63FF).withOpacity(0.1),
-                  shape: BoxShape.circle,
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return FadeTransition(
+                opacity: _fadeAnimation,
+                child: Transform.scale(
+                  scale: _scaleAnimation.value,
+                  child: child,
                 ),
-                child: Image.asset(
+              );
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
                   'assets/images/CircleIcon.png',
-                  width: 96,
-                  height: 96,
+                  width: 120,
+                  height: 120,
                 ),
-              ),
-              const SizedBox(height: 28),
-              Text(
-                "AbsensiBro",
-                style: TextStyle(
-                  fontSize: 38,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : const Color(0xFF201A38),
-                  letterSpacing: 1.5,
+                const SizedBox(height: 28),
+                const Text(
+                  "AbsensiBro",
+                  style: TextStyle(
+                    fontSize: 38,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF201A38),
+                    letterSpacing: 1.5,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                "Pusat Kehadiran Pelatihan PPKD B6",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: isDark ? Colors.white.withOpacity(0.6) : Colors.black.withOpacity(0.6),
-                  letterSpacing: 0.5,
+                const SizedBox(height: 10),
+                const Text(
+                  "Pusat Kehadiran Pelatihan PPKD B6",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF5A5275),
+                    letterSpacing: 0.5,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 64),
-              const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color: Color(0xFF8B7EFE),
+                const SizedBox(height: 64),
+                const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: Color(0xFF6C63FF),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

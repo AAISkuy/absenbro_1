@@ -139,14 +139,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _handleCheckIn() async {
     final now = DateTime.now();
-    if (now.hour < 7) {
+    if (now.hour < 4) {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
           backgroundColor: const Color(0xFF201A38),
           title: const Text("Belum Waktunya", style: TextStyle(color: Colors.white)),
           content: const Text(
-            "Absen masuk baru dibuka mulai pukul 07:00 pagi.",
+            "Absen masuk baru dibuka mulai pukul 04:00 pagi.",
             style: TextStyle(color: Colors.white70),
           ),
           actions: [
@@ -263,25 +263,104 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _handleCheckOut() async {
     final now = DateTime.now();
+    String? earlyReason;
+
     if (now.hour < 16) {
-      showDialog(
+      final reason = await showDialog<String>(
         context: context,
-        builder: (ctx) => AlertDialog(
-          backgroundColor: const Color(0xFF201A38),
-          title: const Text("Belum Waktunya", style: TextStyle(color: Colors.white)),
-          content: const Text(
-            "Absen pulang baru dibuka mulai pukul 16:00 sore.",
-            style: TextStyle(color: Colors.white70),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text("OK", style: TextStyle(color: Color(0xFF8B7EFE))),
-            )
-          ],
-        ),
+        barrierDismissible: false,
+        builder: (ctx) {
+          final controller = TextEditingController();
+          bool showError = false;
+          return StatefulBuilder(
+            builder: (ctx, setStateDialog) {
+              return AlertDialog(
+                backgroundColor: const Color(0xFF201A38),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                title: const Text(
+                  "Check Out Cepat",
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+                content: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Ingin check out?",
+                        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        "Tambahkan text Alasan check out cepat:",
+                        style: TextStyle(color: Colors.white70, fontSize: 14),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: controller,
+                        style: const TextStyle(color: Colors.white),
+                        maxLines: 3,
+                        decoration: InputDecoration(
+                          hintText: "Tulis alasan di sini...",
+                          hintStyle: const TextStyle(color: Colors.white30),
+                          filled: true,
+                          fillColor: Colors.black.withOpacity(0.1),
+                          errorText: showError ? "Alasan check out cepat wajib diisi" : null,
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.white24),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Color(0xFF8B7EFE)),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.redAccent),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.redAccent),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(null),
+                    child: const Text("Batal", style: TextStyle(color: Colors.white54)),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF8B7EFE),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    ),
+                    onPressed: () {
+                      final text = controller.text.trim();
+                      if (text.isEmpty) {
+                        setStateDialog(() {
+                          showError = true;
+                        });
+                        return;
+                      }
+                      Navigator.of(ctx).pop(text);
+                    },
+                    child: const Text("Check Out", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              );
+            },
+          );
+        },
       );
-      return;
+
+      if (reason == null) {
+        return; // User cancelled check-out
+      }
+      earlyReason = reason;
     }
 
     if (_currentPosition == null) {
@@ -305,6 +384,9 @@ class _HomeScreenState extends State<HomeScreen> {
       'check_out_lng': _currentPosition!.longitude,
       'check_out_address': _address,
     };
+    if (earlyReason != null) {
+      body['alasan_check_out_cepat'] = earlyReason;
+    }
 
     if (_isOffline) {
       // Offline check-out caching
@@ -315,6 +397,7 @@ class _HomeScreenState extends State<HomeScreen> {
         latitude: _currentPosition!.latitude,
         longitude: _currentPosition!.longitude,
         address: _address,
+        alasanIzin: earlyReason,
       );
       setState(() {
         _isSubmitting = false;

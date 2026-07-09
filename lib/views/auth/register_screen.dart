@@ -298,9 +298,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         // Gender Field (Dropdown)
                         DropdownButtonFormField<String>(
                           value: _gender,
-                          hint: const Text(
+                          hint: Text(
                             "Jenis Kelamin",
-                            style: TextStyle(color: Colors.black38, fontSize: 13),
+                            style: TextStyle(color: Colors.black.withOpacity(0.4)),
                           ),
                           style: const TextStyle(color: Colors.black87),
                           dropdownColor: Colors.white,
@@ -310,14 +310,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               value: 'L',
                               child: Text(
                                 "Laki-laki",
-                                style: TextStyle(color: Colors.black87, fontSize: 13),
+                                style: TextStyle(color: Colors.black87),
                               ),
                             ),
                             DropdownMenuItem(
                               value: 'P',
                               child: Text(
                                 "Perempuan",
-                                style: TextStyle(color: Colors.black87, fontSize: 13),
+                                style: TextStyle(color: Colors.black87),
                               ),
                             ),
                           ],
@@ -334,9 +334,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         DropdownButtonFormField<int>(
                           isExpanded: true,
                           value: _selectedTrainingId,
-                          hint: const Text(
+                          hint: Text(
                             "Program Pelatihan",
-                            style: TextStyle(color: Colors.black38, fontSize: 13),
+                            style: TextStyle(color: Colors.black.withOpacity(0.4)),
                           ),
                           style: const TextStyle(color: Colors.black87),
                           dropdownColor: Colors.white,
@@ -346,7 +346,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               value: t['id'] as int,
                               child: Text(
                                 t['title'] as String,
-                                style: const TextStyle(color: Colors.black87, fontSize: 13),
+                                style: const TextStyle(color: Colors.black87),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             );
@@ -364,9 +364,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         DropdownButtonFormField<int>(
                           isExpanded: true,
                           value: _selectedBatchId,
-                          hint: const Text(
+                          hint: Text(
                             "Batch / Angkatan",
-                            style: TextStyle(color: Colors.black38, fontSize: 13),
+                            style: TextStyle(color: Colors.black.withOpacity(0.4)),
                           ),
                           style: const TextStyle(color: Colors.black87),
                           dropdownColor: Colors.white,
@@ -376,7 +376,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               value: b['id'] as int,
                               child: Text(
                                 (b['name'] ?? b['title'] ?? 'Batch ${b['id']}') as String,
-                                style: const TextStyle(color: Colors.black87, fontSize: 13),
+                                style: const TextStyle(color: Colors.black87),
                               ),
                             );
                           }).toList(),
